@@ -51,7 +51,7 @@ I use it to backup my family pictures 4 times a year for a reasonable price (cur
 
 It is served at `/hangfire` on whatever port is mapped to the host
 
-[![Hangfire Dashboard](assets/hangfire.png)
+![Hangfire Dashboard](assets/hangfire.png)
 
 ## Logs
 
