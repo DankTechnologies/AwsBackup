@@ -11,6 +11,13 @@ var builder = Host.CreateApplicationBuilder(args);
 var cronExpression = builder.Configuration.GetValue<string>("CronExpression");
 var environmentName = builder.Environment.EnvironmentName;
 
+builder.Logging.ClearProviders();
+builder.Logging.AddSimpleConsole(x => {
+    x.SingleLine = true;
+    x.IncludeScopes = false;
+    x.TimestampFormat = "[MM-dd HH:mm:ss] ";
+});
+
 builder.Services.AddScheduler();
 builder.Services.AddSingleton<BackupService>();
 builder.Services.AddSingleton<IAmazonS3, AmazonS3Client>(provider => new AmazonS3Client(Amazon.RegionEndpoint.USEast2));
