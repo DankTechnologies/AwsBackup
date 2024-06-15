@@ -2,12 +2,14 @@ using Amazon.S3;
 using Amazon.S3.Transfer;
 using CliWrap;
 using CliWrap.Buffered;
+using Coravel.Invocable;
 using Cronos;
-using Hangfire;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace AwsBackup.BackupService;
 
-public class BackupService
+public class BackupService : IInvocable
 {
     private readonly IAmazonS3 _s3Client;
     private readonly ILogger<BackupService> _logger;
@@ -29,8 +31,7 @@ public class BackupService
         _findCommand = configuration.GetValue<string>("FindCommand");
     }
 
-    [AutomaticRetry(Attempts = 0, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
-    public async Task PerformBackup()
+    public async Task Invoke()
     {
         var date = DateTime.Now.ToString("yyyy-MM-dd");
         var archivePath = Path.Combine(_tempPath, $"{date}-pics.tar");
@@ -57,7 +58,7 @@ public class BackupService
             return;
         }
 
-        _logger.LogInformation("Running gpg command", fullCommand);
+        _logger.LogInformation("Running gpg command - {command}", fullCommand);
 
         var gpgResult = await Cli.Wrap("gpg")
             .WithArguments($"--batch --passphrase-fd 0 -c {archivePath}")
@@ -149,5 +150,14 @@ public class BackupService
         }
 
         return now.Subtract(lastChecked).Days;
+    }
+
+    public static int GetDaysUntilNextRun(string cronExpression)
+    {
+        var now = DateTime.UtcNow;
+        var cron = CronExpression.Parse(cronExpression);
+        var next = cron.GetNextOccurrence(now);
+
+        return next.Value.Subtract(now).Days;
     }
 }

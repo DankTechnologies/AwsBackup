@@ -10,4 +10,4 @@ RUN apt-get update && \
 WORKDIR /app
 COPY bin/Release/net8.0/publish  ./
 
-ENTRYPOINT ["dotnet", "AwsBackup.dll", "--urls", "http://+:8080"]
+ENTRYPOINT ["dotnet", "AwsBackup.dll"]

@@ -10,8 +10,7 @@ I use it to backup my family pictures 4 times a year for a reasonable price (cur
 
 ## Tech Stack
 
-* [Hangfire](https://www.hangfire.io/) is used to handle the recurring jobs by cron schedule
-* [Redis](https://redis.io/) is used as the Hangfire backing store, with help from [Hangfire.Redis.StackExchange](https://github.com/marcoCasamento/Hangfire.Redis.StackExchange)
+* [Coravel](https://docs.coravel.net/) is used to handle recurring backup jobs by cron expression
 * [CliWrap](https://github.com/Tyrrrz/CliWrap) is used to shell out to `find`, `tar`, and `gpg`
 
 ## Configuration
@@ -27,8 +26,7 @@ I use it to backup my family pictures 4 times a year for a reasonable price (cur
 
 ## Docker Notes
 
-1. The .NET app listens to port 8080 inside the container, to serve up the Hangfire dashboard.  Add a port mapping to a host port if you care about this, otherwise skip.
-2. Set `PicturePath` and `TempPath` to container paths, and use volumes to mount the target directories.  For instance, I use `/data/pictures` and `/data/tmp` as the container paths, with `/mnt/user/pictures` and `/mnt/user/downloads` as the host paths
+1. Set `PicturePath` and `TempPath` to container paths, and use volumes to mount the target directories.  For instance, I use `/data/pictures` and `/data/tmp` as the container paths, with `/mnt/user/pictures` and `/mnt/user/downloads` as the host paths
 
 ```yaml
     # example Ansible deploy task
@@ -38,7 +36,6 @@ I use it to backup my family pictures 4 times a year for a reasonable price (cur
         image: awsbackup
         state: started
         restart_policy: unless-stopped
-        published_ports: "8082:8080"
         env:
           PicturesPath: "/data/pictures"
           TempPath: "/data/tmp"
@@ -46,12 +43,6 @@ I use it to backup my family pictures 4 times a year for a reasonable price (cur
           - "/mnt/user/pictures:/data/pictures"
           - "/mnt/user/downloads:/data/tmp"
 ```
-
-## Hangfire Dashboard
-
-It is served at `/hangfire` on whatever port is mapped to the host
-
-![Hangfire Dashboard](assets/hangfire.png)
 
 ## Logs
 
